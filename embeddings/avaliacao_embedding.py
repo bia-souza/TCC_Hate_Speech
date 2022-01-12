@@ -46,7 +46,7 @@ class OtimizacaoObjetivoRandomForest(OtimizacaoObjetivo):
         num_arvores = trial.suggest_int('num_arvores', 30, 50, step=5)
 
         rf_method = RandomForestClassifier(min_samples_split=min_samples,n_estimators=num_arvores,
-                                            max_features=max_features,random_state=2,n_jobs=6,
+                                            max_features=max_features,random_state=2,n_jobs=4,
                                             max_samples = 0.8
                                             )
 

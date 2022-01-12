@@ -34,10 +34,10 @@ def get_embedding(str_dataset:str,embedding_size:int=100,overwrite=False):
                         continue
 
                     #obtem a palavra
-                    word = None
+                    word = ' '.join(arr_line[0:-embedding_size])
 
                     #obtem o embedding
-                    dict_embedding[word] = np.array(None, dtype=np.float16)
+                    dict_embedding[word] = np.array(arr_line[-embedding_size:], dtype=np.float16)
                     if(i%10000 == 0):
                         print(f"{i}: {word}")
             except ValueError:
@@ -89,35 +89,37 @@ class Analogy:
         self.kdtree_embedding = KDTreeEmbedding(dict_embedding, kdtree_file, overwrite_kdtree) 
 
 
-    def calcula_embedding_analogia(self, palavra_x:str, esta_para:str, assim_como:str) -> np.array:
+    def calcula_embedding_analogia(self, A:str, B:str, C:str) -> np.array:
         #checa se as palavras existem 
-        for palavra in [palavra_x,esta_para,assim_como]:
+        for palavra in [A, B, C]:
             if palavra not in self.dict_embedding:
                 print(f"Não foi possivel encontrar a palavra: {palavra}")
                 return None    
 
         #obtem o embedding de cada palavra usando self.dict_embedding       
-        embedding_x = None
-        embedding_x_esta_para = None
-        embedding_y = None
-        #print(f"x: {embedding_x} esta para: {embedding_x_esta_para} assim_como: {embedding_y}" )
+        embedding_A = self.dict_embedding[A]
+        embedding_B = self.dict_embedding[B]
+        embedding_C = self.dict_embedding[C]
 
         #retorna o calculo da analogia
-        embedding_y_esta_para = None
+        embedding_D = embedding_B - embedding_A + embedding_C
 
-        return embedding_y_esta_para         
+        return embedding_D
 
-    def analogia(self, palavra_x:str, esta_para:str, assim_como:str) -> List:
+    def analogia(self, A:str, B:str, C:str) -> List:
         
         #calcula o embeding da analogia
-        embedding = None
+        D = self.calcula_embedding_analogia(A, B, C)
 
         #caso não exista uma das palavras, é retornado uma lista vazia
-        if embedding is None:
+        if D is None:
             return []
 
         #obtem as palavras mais similares     
-        _,words = None
+        _, words = self.kdtree_embedding.get_most_similar_embedding(
+            D,
+            words_to_ignore = [A, B, C]
+        )
 
         return words
 
@@ -190,7 +192,11 @@ class KDTreeEmbedding:
             query_embedding = self.dict_embedding[query]
 
         #obtém o embedding
-        nearest_dist, nearest_ind = None
+        nearest_dist, nearest_ind = self.kd_embedding.query(
+            [query_embedding],
+            k = k_most_similar,
+            return_distance = True
+        )
         return self.positions_to_word(nearest_dist[0], nearest_ind[0],   
                                         words_to_ignore)
     
@@ -201,6 +207,10 @@ class KDTreeEmbedding:
                 return [],[]
             embedding = self.dict_embedding[query]
 
-        nearest_ind, nearest_dist = None   
+        nearest_ind, nearest_dist = self.kd_embedding.query_radius(
+            [embedding],
+            max_distance,
+            return_distance = True
+        )
         return self.positions_to_word(nearest_dist[0], nearest_ind[0], words_to_ignore)
 

@@ -1,0 +1,9 @@
+*.h5
+*.pyc
+embeddings.txt
+*.npz
+*.idx
+.ipynb_checkpoints
+*.p
+embeddings_data/*
+assignment_cache/*

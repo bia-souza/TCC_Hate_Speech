@@ -4,9 +4,7 @@ import pandas as pd
 import numpy as np
 from base_am.preprocessamento_atributos import PreprocessDataset
 from sklearn.feature_extraction.text import TfidfVectorizer
-
-
-
+from sklearn.decomposition import PCA, TruncatedSVD
 
 class InstanceWisePreprocess(PreprocessDataset):
     def __init__(self, nome, counter_function,text_col="text"):
@@ -87,6 +85,7 @@ class AggregateEmbeddings:
         """
 
         result = {}
+        
         for j in range(word_embeddings.shape[1]):
             if self.aggregate_method == "avg":
                 result[j] = np.average(word_embeddings[:,j])
@@ -117,10 +116,9 @@ class AggregateEmbeddings:
             text_embeddings = np.zeros((1,any_embedding.shape[0]))        
         else:
             text_embeddings = np.array(text_embeddings)
-
+        
         #transforma em dicionario como representação
         dict_representation = self.text_embedding_representation(text_embeddings)
-
              
         return dict_representation
     
@@ -130,6 +128,7 @@ class AggregateEmbeddings:
 
 
 class BagOfWords(PreprocessDataset):
+    
     def __init__(self, nome,text_col="text", stop_words=None, words_to_consider=None):
         super().__init__(nome)
         #norm: normalização para que todos os valores fiquem entre 0 e 1
@@ -143,3 +142,23 @@ class BagOfWords(PreprocessDataset):
     def generate_preproc_test(self, df_data:pd.DataFrame, class_col:str) -> pd.DataFrame:
         mat_bow = self.vectorizer.transform(df_data[self.text_col])
         return pd.DataFrame(mat_bow.toarray(),columns=self.vectorizer.get_feature_names(),index=df_data.index)
+    
+    '''def __init__(self, nome,text_col="text", stop_words=None, words_to_consider=None):
+        super().__init__(nome)
+        #norm: normalização para que todos os valores fiquem entre 0 e 1
+        self.vectorizer = TfidfVectorizer(norm="l2", stop_words=stop_words, vocabulary=words_to_consider)
+        self.svd = TruncatedSVD(n_components=75, random_state=42)
+        self.text_col = text_col
+
+    def generate_preproc_train(self,df_data:pd.DataFrame, class_col:str) -> pd.DataFrame:
+        
+        mat_bow = self.vectorizer.fit_transform(df_data[self.text_col])
+        X_svd = self.svd.fit_transform(mat_bow)
+        feature_names = self.vectorizer.get_feature_names()
+        return pd.DataFrame(X_svd,columns=75)
+
+    def generate_preproc_test(self, df_data:pd.DataFrame, class_col:str) -> pd.DataFrame:
+        
+        mat_bow = self.vectorizer.transform(df_data[self.text_col])
+        X_svd = self.svd.fit_transform(mat_bow)
+        return pd.DataFrame(X_svd.toarray(),columns=best_features)'''
