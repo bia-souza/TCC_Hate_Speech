@@ -185,8 +185,6 @@ class Fold():
                 fold = Fold(df_treino,df_to_predict,col_classe,num_folds_validacao,num_repeticoes_validacao)
                 arr_folds.append(fold)
 
-
-
         #imprime o número instancias por fold (descomente para testes)
         """
         for num_repeticao in range(num_repeticoes):
@@ -201,6 +199,7 @@ class Fold():
                 print(f"\tÍndices das instancias a avaliar (teste ou validação): {df_to_predict.index.values}")
                 print(" ")
         """
+        
         return arr_folds
 
     def __str__(self):

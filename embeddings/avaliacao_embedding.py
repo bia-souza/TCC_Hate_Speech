@@ -18,7 +18,12 @@ def calcula_experimento_representacao(nom_experimento:str, preproc_method:Prepro
         arr_folds = Fold.gerar_k_folds(df_amostra, val_k=num_folds, col_classe=col_classe,
                                     num_repeticoes=1, num_folds_validacao=num_folds_validacao, num_repeticoes_validacao=1)
 
-
+        ''' print(arr_folds)
+        df = pd.DataFrame()
+        for fold in arr_folds:
+            df = pd.concat([df, fold.df_data_to_predict], axis=0)
+        df.dropna()
+        df.to_csv("folds.csv",sep=";")'''
         experimento = Experimento(nom_experimento, arr_folds, 
                             ClasseObjetivoOtimizacao=ClasseObjetivoOtimizacao,
                             num_trials=num_trials, preproc_method=preproc_method,
